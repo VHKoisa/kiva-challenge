@@ -3,6 +3,7 @@ import torch
 from transformers import LlavaForConditionalGeneration, AutoProcessor
 from models.chat_model import ChatModel
 from PIL import Image
+import os
 
 class LLavaModel(ChatModel):
 	def __init__(self, system_prompt, max_token=100):
@@ -15,19 +16,36 @@ class LLavaModel(ChatModel):
 
 
 	def load_model(self):
+		os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+		model_id = "llava-hf/llava-1.5-7b-hf"  # Using smaller 7B mode
+		processor = AutoProcessor.from_pretrained(model_id)
+		model = LlavaForConditionalGeneration.from_pretrained(
+			model_id,
+			torch_dtype=torch.float16,
+			device_map="auto",
+			load_in_8bit=True,
+			use_cache=False
+		)
 
-		model_id = "llava-hf/llava-1.5-13b-hf"
+		# model_id = "llava-hf/llava-1.5-13b-hf"
 		# model_id = "liuhaotian/llava-v1.6-vicuna-13b"
 
-		model = LlavaForConditionalGeneration.from_pretrained(model_id, torch_dtype=torch.float16).cuda()
-		processor = AutoProcessor.from_pretrained(model_id)
-		processor.image_processor.do_center_cropq = False
+		# model = LlavaForConditionalGeneration.from_pretrained(model_id, torch_dtype=torch.float16).cuda()
+		# processor = AutoProcessor.from_pretrained(model_id)
+		# processor.image_processor.do_center_cropq = False
 		# processor.image_processor.size = {"height": 336, "width": 336}
 
+		# model_data = {
+		#     "model":model,
+		#     "processor":processor,
+		#     "name":"llava"
+		# }
+
+		model.gradient_checkpointing_enable()
 		model_data = {
-			"model":model,
-			"processor":processor,
-			"name":"llava"
+			"model": model,
+			"processor": processor,
+			"name": "llava"
 		}
 
 		return model_data
