@@ -1,6 +1,6 @@
 
 import torch
-from transformers import LlavaForConditionalGeneration, AutoProcessor
+from transformers import LlavaForConditionalGeneration, AutoProcessor, AutoConfig
 from models.chat_model import ChatModel
 from PIL import Image
 import os
@@ -18,13 +18,15 @@ class LLavaModel(ChatModel):
 	def load_model(self):
 		os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 		model_id = "llava-hf/llava-1.5-7b-hf"  # Using smaller 7B mode
+		config = AutoConfig.from_pretrained(model_id)
+		config.use_cache = False
 		processor = AutoProcessor.from_pretrained(model_id)
 		model = LlavaForConditionalGeneration.from_pretrained(
 			model_id,
 			torch_dtype=torch.float16,
 			device_map="auto",
 			load_in_8bit=True,
-			use_cache=False
+			# use_cache=False
 		)
 
 		# model_id = "llava-hf/llava-1.5-13b-hf"
@@ -40,8 +42,6 @@ class LLavaModel(ChatModel):
 		#     "processor":processor,
 		#     "name":"llava"
 		# }
-		if hasattr(model.config, "use_cache"):
-			model.config.use_cache = False
 		model.gradient_checkpointing_enable()
 		model_data = {
 			"model": model,
