@@ -40,7 +40,8 @@ class LLavaModel(ChatModel):
 		#     "processor":processor,
 		#     "name":"llava"
 		# }
-
+		if hasattr(model.config, "use_cache"):
+			model.config.use_cache = False
 		model.gradient_checkpointing_enable()
 		model_data = {
 			"model": model,
