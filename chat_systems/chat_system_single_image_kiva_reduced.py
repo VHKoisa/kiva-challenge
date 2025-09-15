@@ -13,11 +13,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--concept', type=str, default="Counting", help='The concept to be tested')
 parser.add_argument('--model', type=str, default="llava", help='model')
 parser.add_argument('--api_key', type=str, default="API-KEY", help='gpt4_api_key')
-# parser.add_argument('--max_trials', type=int, default=5, help='Maximum number of trials to run')
-# parser.add_argument('--max_regenerations', type=int, default=1, help='Maximum number of regenerations per trial')
 parser.add_argument('--batch_size', type=int, default=1, help='Number of images to process at once')
 parser.add_argument('--max_trials', type=int, default=5, help='Maximum number of trials to run')
 parser.add_argument('--max_regenerations', type=int, default=1, help='Maximum number of regenerations per trial')
+parser.add_argument('--memory_efficient', action='store_true', help='Enable memory efficient mode')
 
 args = parser.parse_args()
 
